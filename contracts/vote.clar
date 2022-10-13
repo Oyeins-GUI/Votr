@@ -10,6 +10,7 @@
 (define-constant ERR_NOT_A_CONTESTANT (err u404))
 (define-constant ERR_NO_ONGOING_VOTES (err u405))
 (define-constant ERR_FIRST_VOTE_NOT_CONCLUDED (err u406))
+(define-constant ERR_VOTED_ALREADY (err u407))
 
 (define-data-var default-expiration uint (+ block-height u36))
 
@@ -21,14 +22,37 @@
 
 
 ;; Platform Data
-(define-map registered-organization (string-ascii 60) { organization-address: principal, registration-id: uint, registered: bool })
+(define-map registered-organization (string-ascii 60) { organization-address: principal, registration-id: uint })
 (define-map ongoing-votes (string-ascii 60) { title: (string-ascii 30), number-of-contestants: uint, vote-id: uint, expiration: uint })
 (define-map contestants principal { name: (string-ascii 60), number-of-votes: uint })
+(define-map voters principal { supporter: principal })
+
+(define-public (retrieve (contestant principal)) 
+    (let 
+        (
+            (vote-amount (map-get? contestants contestant))
+            (retieved (get number-of-votes vote-amount))
+        )
+        (ok retieved)
+    )
+)
 
 ;; Public & Private Functions
-;; (define-public (vote (contestant principal)))
+(define-public (vote (contestant principal))
+    (let
+        (
+            (votes (unwrap-panic (get number-of-votes (map-get? contestants contestant))))
+            (current-votes (+ u1 votes))
+            (updated-votes (merge (unwrap! (map-get? contestants contestant) ERR_NOT_A_CONTESTANT) { number-of-votes: (+ u1 votes) }))
+        )
+        (asserts! (is-none (map-get? voters contract-caller)) ERR_VOTED_ALREADY)
+        ;; #[filter(updated-votes, contestant)]
+        (map-set contestants contestant updated-votes)
+        (map-set voters tx-sender { supporter: contestant })
+        (ok updated-votes)
+    )
+)
 
-;; Public & Private functions IN USE
 (define-read-only (is-registered (organization-name (string-ascii 60)))
     (if (is-some (map-get? registered-organization organization-name)) true false)
 )
@@ -41,7 +65,7 @@
         (asserts! (or (is-eq tx-sender (var-get votr-admin)) (is-eq tx-sender address)) ERR_INVALID_ADDRESS)
         (asserts! (is-none (map-get? registered-organization organization-name)) ERR_ALREADY_REGISTERED)
         ;; #[filter(organization-name)]
-        (map-set registered-organization organization-name { organization-address: address, registration-id: new-id, registered: true })
+        (map-set registered-organization organization-name { organization-address: address, registration-id: new-id })
         (var-set registration-id new-id)
         (var-set total-registered-organizations (+ (var-get total-registered-organizations) u1))
         (ok new-id)    
