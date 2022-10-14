@@ -11,14 +11,16 @@
 (define-constant ERR_NO_ONGOING_VOTES (err u405))
 (define-constant ERR_FIRST_VOTE_NOT_CONCLUDED (err u406))
 (define-constant ERR_VOTED_ALREADY (err u407))
+(define-constant ERR_VOTE_ENDED (err u408))
+(define-constant ERR_VOTE_NOT_ENDED (err u409))
 
 (define-data-var default-expiration uint (+ block-height u36))
 
 ;; Platform Variables
-(define-data-var votr-admin principal tx-sender) ;;usefull
-(define-data-var registration-id uint u0) ;;useful
-(define-data-var vote-id uint u0) ;; useful
-(define-data-var total-registered-organizations uint u0) ;; useful
+(define-data-var votr-admin principal tx-sender)
+(define-data-var registration-id uint u0)
+(define-data-var vote-id uint u0)
+(define-data-var total-registered-organizations uint u0)
 
 
 ;; Platform Data
@@ -27,24 +29,29 @@
 (define-map contestants principal { name: (string-ascii 60), number-of-votes: uint })
 (define-map voters principal { supporter: principal })
 
-(define-public (retrieve (contestant principal)) 
-    (let 
+;; Public & Private Functions
+(define-public (end-vote (org-name (string-ascii 60))) 
+    (let
         (
-            (vote-amount (map-get? contestants contestant))
-            (retieved (get number-of-votes vote-amount))
+            ;; (org-name (unwrap-panic (get name (map-get? contestants contestant))))
+            (vote-expiry (unwrap-panic (get expiration (map-get? ongoing-votes org-name))))
         )
-        (ok retieved)
+        (asserts! (>= block-height vote-expiry) ERR_VOTE_NOT_ENDED)
+        (map-delete ongoing-votes org-name)
+        (ok "voting has ended")
     )
 )
 
-;; Public & Private Functions
 (define-public (vote (contestant principal))
     (let
         (
+            (org-name (unwrap-panic (get name (map-get? contestants contestant))))
+            (vote-expiry (unwrap-panic (get expiration (map-get? ongoing-votes org-name))))
             (votes (unwrap-panic (get number-of-votes (map-get? contestants contestant))))
-            (current-votes (+ u1 votes))
             (updated-votes (merge (unwrap! (map-get? contestants contestant) ERR_NOT_A_CONTESTANT) { number-of-votes: (+ u1 votes) }))
         )
+        
+        (asserts! (< block-height vote-expiry) ERR_VOTE_ENDED)
         (asserts! (is-none (map-get? voters contract-caller)) ERR_VOTED_ALREADY)
         ;; #[filter(updated-votes, contestant)]
         (map-set contestants contestant updated-votes)
