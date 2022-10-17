@@ -1,7 +1,6 @@
 ;; VOTR
-;; <add a description here>
+;; VOTR is a Web 3 voting platform. This platform guarantees transparency and credibility as the voters can monitor the progression of the voting exercise over the Blockchain.
 
-(use-trait vote-permission 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.nft-trait)
 
 ;; Errors
 (define-constant ERR_UNAUTHORIZED (err u200))
@@ -10,14 +9,11 @@
 (define-constant ERR_INVALID_ADDRESS (err u402))
 (define-constant ERR_INVALID_VOTE_EXPIRATION (err u403))
 (define-constant ERR_NOT_A_CONTESTANT (err u404))
-(define-constant ERR_NO_ONGOING_VOTES (err u405))
-(define-constant ERR_FIRST_VOTE_NOT_CONCLUDED (err u406))
-(define-constant ERR_VOTED_ALREADY (err u407))
-(define-constant ERR_VOTE_ENDED (err u408))
-(define-constant ERR_VOTE_NOT_ENDED (err u409))
-(define-constant ERR_UNAUTHORIZED_VOTER (err u410))
+(define-constant ERR_VOTED_ALREADY (err u406))
+(define-constant ERR_VOTE_ENDED (err u407))
+(define-constant ERR_VOTE_NOT_ENDED (err u408))
+(define-constant ERR_UNAUTHORIZED_VOTER (err u409))
 
-(define-non-fungible-token invitation uint)
 
 ;; Variables
 (define-data-var votr-admin principal tx-sender)
@@ -108,11 +104,6 @@
         (map-delete Elections { org-name: org-name, election-id: election-id })
         (ok "voting has ended")
     )
-)
-
-;; helper function to check for a verified voter
-(define-private (has-nft (nft-name <vote-permission>) (nft-id uint) (user principal))
-    (is-eq (unwrap-panic (contract-call? nft-name get-owner nft-id)) (some user))
 )
 
 ;; helper function to check set contestants
