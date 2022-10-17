@@ -30,7 +30,6 @@
 (define-map Elections { org-name: (string-ascii 128), election-id: uint } { title: (string-ascii 30), expiration: uint })
 (define-map Contestants principal { name: (string-ascii 128), number-of-votes: uint })
 (define-map Voters principal { supporter: principal })
-;; (define-map UsedInvitation uint (string-ascii 5))
 
 ;; the register function allows an organization to come into the platform and
 ;; give them the right to commence a voting exercise 
@@ -60,14 +59,14 @@
         (try! (stx-transfer? (var-get vote-posting-price) (unwrap! (map-get? RegisteredOrganizations organization-name) ERR_NOT_REGISTERED) (var-get votr-admin)))
         (map-set Elections { org-name: organization-name, election-id: id } { title: title, expiration: expiration })
 
-        (map set-participants participants)
+        (map set-contestants participants)
         (var-set elections-id id)
         (print participants)
         (ok id)
     )
 )
 
-;; authorize voters
+;; this function will allow registered organizations to authorize specific members to have voting right
 (define-public (authorize-voters (organization-name (string-ascii 128)) (election-id uint) (voters (list 128 principal))) 
     (begin
         (asserts! (is-eq (map-get? RegisteredOrganizations organization-name) (some tx-sender)) ERR_INVALID_ADDRESS)
@@ -116,7 +115,8 @@
     (is-eq (unwrap-panic (contract-call? nft-name get-owner nft-id)) (some user))
 )
 
-(define-private (set-participants (info {address: principal, name: (string-ascii 128)}))
+;; helper function to check set contestants
+(define-private (set-contestants (info {address: principal, name: (string-ascii 128)}))
     (map-set Contestants (get address info) { name: (get name info), number-of-votes: u0 })
 )
 
