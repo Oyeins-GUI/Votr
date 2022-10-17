@@ -16,107 +16,118 @@
 (define-constant ERR_VOTE_ENDED (err u408))
 (define-constant ERR_VOTE_NOT_ENDED (err u409))
 (define-constant ERR_UNAUTHORIZED_VOTER (err u410))
-(define-constant ERR_WRONG_VOTE_PERMIT (err u410))
+
+(define-non-fungible-token invitation uint)
 
 ;; Variables
 (define-data-var votr-admin principal tx-sender)
-(define-data-var registration-id uint u0)
+(define-data-var elections-id uint u0)
 (define-data-var total-registered-organizations uint u0)
 (define-data-var vote-posting-price uint u50000000)
 
-
 ;; Platform Data Storage
-(define-map registered-organization (string-ascii 60) { organization-address: principal, registration-id: uint })
-(define-map ongoing-votes (string-ascii 60) { title: (string-ascii 30), number-of-contestants: uint, expiration: uint, vote-permit: principal })
-(define-map contestants principal { name: (string-ascii 60), number-of-votes: uint })
-(define-map voters principal { supporter: principal })
+(define-map RegisteredOrganizations (string-ascii 128) principal)
+(define-map Elections { org-name: (string-ascii 128), election-id: uint } { title: (string-ascii 30), expiration: uint })
+(define-map Contestants principal { name: (string-ascii 128), number-of-votes: uint })
+(define-map Voters principal { supporter: principal })
+;; (define-map UsedInvitation uint (string-ascii 5))
 
 ;; the register function allows an organization to come into the platform and
 ;; give them the right to commence a voting exercise 
-(define-public (register (organization-name (string-ascii 60)) (address principal))
-    (let
-        (
-            (new-id (+ u1 (var-get registration-id)))
-        )
+(define-public (register (organization-name (string-ascii 128)) (address principal))
+    (begin
         (asserts! (or (is-eq tx-sender (var-get votr-admin)) (is-eq tx-sender address)) ERR_INVALID_ADDRESS)
-        (asserts! (is-none (map-get? registered-organization organization-name)) ERR_ALREADY_REGISTERED)
+        (asserts! (is-none (map-get? RegisteredOrganizations organization-name)) ERR_ALREADY_REGISTERED)
         ;; #[filter(organization-name)]
-        (map-set registered-organization organization-name { organization-address: address, registration-id: new-id })
-        (var-set registration-id new-id)
+        (map-set RegisteredOrganizations organization-name address)
         (var-set total-registered-organizations (+ (var-get total-registered-organizations) u1))
-        (ok new-id)    
+        (ok "registration successful")    
     )
 )
 
 ;; the post-vote function allows only registered organizations to commence voting exercise
 ;; with an nft every verified voter must hold
-(define-public (post-vote (organization-name (string-ascii 60)) (title (string-ascii 30)) (expiration uint) (participants (list 20 {address: principal, name: (string-ascii 60)})) (vote-permit <vote-permission>))
-    (begin
-        (asserts! (is-eq tx-sender (get organization-address (unwrap! (map-get? registered-organization organization-name) ERR_NOT_REGISTERED))) ERR_UNAUTHORIZED)
+(define-public (create-election (organization-name (string-ascii 128)) (title (string-ascii 30)) (expiration uint) (participants (list 20 {address: principal, name: (string-ascii 128)})) ) 
+    (let 
+        (
+            (election-id (var-get elections-id))
+            (id (+ u1 election-id))
+        )
+        ;; #[filter(title, vote-permit, participants)]
+        (asserts! (is-eq (map-get? RegisteredOrganizations organization-name) (some tx-sender)) ERR_INVALID_ADDRESS)
         (asserts! (is-eq true (is-registered organization-name)) ERR_NOT_REGISTERED)
         (asserts! (> expiration u0) ERR_INVALID_VOTE_EXPIRATION)
-        (asserts! (is-none (map-get? ongoing-votes organization-name)) ERR_FIRST_VOTE_NOT_CONCLUDED)
-        ;; #[filter(participants, title, expiration,vote-permit)]
-        (try! (stx-transfer? (var-get vote-posting-price) (unwrap! (get organization-address (map-get? registered-organization organization-name)) ERR_NOT_REGISTERED) (var-get votr-admin)))
-        (map-set ongoing-votes organization-name { title: title, number-of-contestants: (len participants), expiration: expiration, vote-permit: (contract-of vote-permit) })
+        (try! (stx-transfer? (var-get vote-posting-price) (unwrap! (map-get? RegisteredOrganizations organization-name) ERR_NOT_REGISTERED) (var-get votr-admin)))
+        (map-set Elections { org-name: organization-name, election-id: id } { title: title, expiration: expiration })
+
         (map set-participants participants)
-        ;; (ok participants)
-        (ok (contract-of vote-permit))
+        (var-set elections-id id)
+        (print participants)
+        (ok id)
     )
 )
 
-
-(define-private (has-nft (nft-name <vote-permission>) (nft-id uint) (user principal))
-    (is-eq (unwrap-panic (contract-call? nft-name get-owner nft-id)) (some user))
+;; authorize voters
+(define-public (authorize-voters (organization-name (string-ascii 128)) (election-id uint) (voters (list 128 principal))) 
+    (begin
+        (asserts! (is-eq (map-get? RegisteredOrganizations organization-name) (some tx-sender)) ERR_INVALID_ADDRESS)
+        (unwrap-panic (contract-call? .oyeins send-invitation voters))
+        (ok "authorization completed")
+    )
 )
 
 ;; the vote function allows only users with nft's from the registered organization
-(define-public (vote (contestant principal) (vote-permit-contract <vote-permission>) (vote-permit-id uint))
+(define-public (vote (contestant principal) (vote-invitation-id uint) (election-id uint))
     (let
         (
-            (org-name (unwrap! (get name (map-get? contestants contestant)) ERR_NOT_A_CONTESTANT))
-            (vote-expiry (unwrap-panic (get expiration (map-get? ongoing-votes org-name))))
-            (votes (unwrap-panic (get number-of-votes (map-get? contestants contestant))))
-            (updated-votes (merge (unwrap! (map-get? contestants contestant) ERR_NOT_A_CONTESTANT) { number-of-votes: (+ u1 votes) }))
-            (vote-permit (unwrap! (get vote-permit (map-get? ongoing-votes org-name)) (err u33)))
+            (org-name (unwrap! (get name (map-get? Contestants contestant)) ERR_NOT_A_CONTESTANT))
+            (vote-expiry (unwrap-panic (get expiration (map-get? Elections {org-name: org-name, election-id: election-id}))))
+            (votes (unwrap-panic (get number-of-votes (map-get? Contestants contestant))))
+            (updated-votes (merge (unwrap! (map-get? Contestants contestant) ERR_NOT_A_CONTESTANT) { number-of-votes: (+ u1 votes) }))
         )
         ;; #[filter(updated-votes, contestant)]
-        (asserts! (is-eq (contract-of vote-permit-contract) vote-permit) ERR_WRONG_VOTE_PERMIT)
-        (asserts! (is-eq true (has-nft vote-permit-contract vote-permit-id tx-sender)) ERR_UNAUTHORIZED_VOTER)
+        (asserts! (is-eq (unwrap-panic (contract-call? .oyeins get-owner vote-invitation-id)) (some tx-sender)) ERR_UNAUTHORIZED_VOTER)
         (asserts! (< block-height vote-expiry) ERR_VOTE_ENDED)
-        (asserts! (is-none (map-get? voters contract-caller)) ERR_VOTED_ALREADY)
-        (map-set contestants contestant updated-votes)
-        (map-set voters tx-sender { supporter: contestant })
-        (ok vote-permit)
+        (asserts! (is-none (map-get? Voters tx-sender)) ERR_VOTED_ALREADY)
+        (unwrap-panic (contract-call? .oyeins burn-invitation vote-invitation-id tx-sender))
+        (map-set Contestants contestant updated-votes)
+        (map-set Voters tx-sender { supporter: contestant })
+        (ok "your vote has been casted")
     )
 )
 
 ;; the end-vote function ends an ongoing-vote for a particular organization
 ;; allowing them to post another vote
-(define-public (end-vote (org-name (string-ascii 60))) 
+(define-public (end-vote (org-name (string-ascii 128)) (election-id uint)) 
     (let
         (
-            (vote-expiry (unwrap! (get expiration (map-get? ongoing-votes org-name)) ERR_NOT_REGISTERED))
+            (vote-expiry (unwrap! (get expiration (map-get? Elections {org-name: org-name, election-id: election-id})) ERR_NOT_REGISTERED))
         )
-        (asserts! (or (is-eq tx-sender (var-get votr-admin)) (is-eq tx-sender (get organization-address (unwrap! (map-get? registered-organization org-name) ERR_NOT_REGISTERED)))) ERR_UNAUTHORIZED)
+        ;; #[filter(election-id)]
+        (asserts! (or (is-eq tx-sender (var-get votr-admin)) (is-eq tx-sender (unwrap! (map-get? RegisteredOrganizations org-name) ERR_NOT_REGISTERED))) ERR_UNAUTHORIZED)
         (asserts! (>= block-height vote-expiry) ERR_VOTE_NOT_ENDED)
-        (map-delete ongoing-votes org-name)
+        (map-delete Elections { org-name: org-name, election-id: election-id })
         (ok "voting has ended")
     )
 )
 
-(define-private (set-participants (info {address: principal, name: (string-ascii 60)}))
-    (map-set contestants (get address info) { name: (get name info), number-of-votes: u0 })
+;; helper function to check for a verified voter
+(define-private (has-nft (nft-name <vote-permission>) (nft-id uint) (user principal))
+    (is-eq (unwrap-panic (contract-call? nft-name get-owner nft-id)) (some user))
+)
+
+(define-private (set-participants (info {address: principal, name: (string-ascii 128)}))
+    (map-set Contestants (get address info) { name: (get name info), number-of-votes: u0 })
 )
 
 ;; check if an organization is registered
-(define-read-only (is-registered (organization-name (string-ascii 60)))
-    (if (is-some (map-get? registered-organization organization-name)) true false)
+(define-read-only (is-registered (organization-name (string-ascii 128)))
+    (if (is-some (map-get? RegisteredOrganizations organization-name)) true false)
 )
 
 ;; see details of a vote that is ongoing
-(define-read-only (check-ongoing-votes (organization-name (string-ascii 60)))
-    (map-get? ongoing-votes organization-name)
+(define-read-only (check-elections (organization-name (string-ascii 128)) (election-id uint))
+    (map-get? Elections {org-name: organization-name, election-id: election-id})
 )
 
 ;; the number of registered organizaions
@@ -126,7 +137,7 @@
 
 ;; get total number of votes for any contestant
 (define-read-only (get-contestant-votes (address principal))
-    (get number-of-votes (map-get? contestants address))
+    (get number-of-votes (map-get? Contestants address))
 )
 
 (define-public (set-admin (new-admin principal))

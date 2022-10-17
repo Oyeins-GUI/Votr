@@ -1,5 +1,5 @@
 
-;; oyeins
+;; vote-invitation
 (impl-trait 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.nft-trait)
 
 (define-constant contract-owner tx-sender)
@@ -10,11 +10,11 @@
 (define-constant err-token-id-failure (err u101))
 (define-constant err-not-token-owner (err u102))
 
-(define-non-fungible-token oyeins uint)
-(define-data-var token-id-nonce uint u0)
+(define-non-fungible-token vote-invitation uint)
+(define-data-var invitation-id-nonce uint u0)
 
 (define-read-only (get-last-token-id)
-    (ok (var-get token-id-nonce))
+    (ok (var-get invitation-id-nonce))
 )
 
 (define-read-only (get-token-uri (token-id uint))
@@ -22,25 +22,38 @@
 )
 
 (define-read-only (get-owner (token-id uint))
-    (ok (nft-get-owner? oyeins token-id))
+    (ok (nft-get-owner? vote-invitation token-id))
 )
 
-(define-public (transfer (token-id uint) (sender principal) (recipient principal))
+(define-public (transfer (invitation-id uint) (sender principal) (recipient principal))
     (begin
         (asserts! (is-eq tx-sender sender) err-not-token-owner)
-        ;; #[filter(oyeins, token-id, sender, recipient)]
-        (nft-transfer? oyeins token-id sender recipient)
+        ;; #[filter(vote-invitation, invitation-id, sender, recipient)]
+        (nft-transfer? vote-invitation invitation-id sender (as-contract contract-owner))
     )
 )
 
-(define-public (mint)
+(define-private (mint (address principal))
     (let 
         (
-            (token-id (+ (var-get token-id-nonce) u1))
+            (invitation-id (+ (var-get invitation-id-nonce) u1))
         )
-        (try! (nft-mint? oyeins token-id tx-sender))
-        (try! (stx-transfer? mint-price tx-sender contract-address))
-        (var-set token-id-nonce token-id)
-        (ok token-id)
+        (try! (nft-mint? vote-invitation invitation-id address))
+        (var-set invitation-id-nonce invitation-id)
+        (print invitation-id)
+        (ok invitation-id)
     )
 )
+
+(define-public (send-invitation (voters (list 128 principal))) 
+    (begin
+        (map mint voters)
+        (ok true)
+    )
+)
+
+(define-public (burn-invitation (invitation-id uint) (sender principal)) 
+    ;; #[filter(invitation-id, sender)]
+    (nft-burn? vote-invitation invitation-id sender)
+)
+

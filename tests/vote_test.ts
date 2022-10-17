@@ -3,17 +3,45 @@ import { Clarinet, Tx, Chain, Account, types } from 'https://deno.land/x/clarine
 import { assertEquals } from 'https://deno.land/std@0.90.0/testing/asserts.ts';
 
 Clarinet.test({
-    name: "Ensure that <...>",
+    name: "register: allow only unregistered organizations to get registered",
     async fn(chain: Chain, accounts: Map<string, Account>) {
-        let block = chain.mineBlock([
-            /* 
-             * Add transactions with: 
-             * Tx.contractCall(...)
-            */
-        ]);
-        assertEquals(block.receipts.length, 0);
-        assertEquals(block.height, 2);
+        let organization = accounts.get('wallet_1')!.address
 
-       
+        const block = chain.mineBlock(
+            Tx.contractCall(
+                'vote',
+                'register',
+                [types.ascii('votr'), types.principal(organization)],
+                organization
+            )
+        );
+
+        assertEquals(block.receipts.length, 1);
+        assertEquals(block.height, 2);
+    },
+});
+
+Clarinet.test({
+    name: "register: don't allow registered organizations to get register again",
+    async fn(chain: Chain, accounts: Map<string, Account>) {
+        let organization = accounts.get('wallet_1')!.address
+
+        let block = chain.mineBlock([
+            Tx.contractCall(
+                "vote",
+                "register",
+                [types.principal('votr'), types.principal(organization)],
+                organization
+            ),
+            Tx.contractCall(
+                "vote",
+                "register",
+                [types.principal('votr'), types.principal(organization)],
+                organization
+            )
+        ]);
+
+        assertEquals(block.receipts.length, 2);
+        assertEquals(block.height, 2);
     },
 });
