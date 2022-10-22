@@ -1,6 +1,6 @@
 
 ;; vote-invitation
-(impl-trait 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.nft-trait)
+(impl-trait 'ST17D0SY6T9M01CQN3F5HBXCC86JBWTAT8RMFJAB1.nft-trait.nft-trait)
 
 (define-constant contract-owner tx-sender)
 (define-constant contract-address (as-contract tx-sender))
@@ -40,7 +40,6 @@
         )
         (try! (nft-mint? vote-invitation invitation-id address))
         (var-set invitation-id-nonce invitation-id)
-        (print invitation-id)
         (ok invitation-id)
     )
 )
@@ -48,6 +47,7 @@
 (define-public (send-invitation (voters (list 128 principal))) 
     (begin
         (map mint voters)
+        (print voters)
         (ok true)
     )
 )
