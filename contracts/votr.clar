@@ -28,11 +28,11 @@
     (begin
         (asserts! (is-eq tx-sender sender) err-not-token-owner)
         ;; #[filter(vote-invitation, invitation-id, sender, recipient)]
-        (nft-transfer? vote-invitation invitation-id sender (as-contract contract-owner))
+        (nft-transfer? vote-invitation invitation-id sender recipient)
     )
 )
 
-(define-private (mint (address principal))
+(define-private (send-invitation (address principal))
     (let 
         (
             (invitation-id (+ (var-get invitation-id-nonce) u1))
@@ -43,9 +43,9 @@
     )
 )
 
-(define-public (send-invitation (voters (list 128 principal))) 
+(define-private (send-invitation-to-many (voters (list 128 principal))) 
     (begin
-        (map mint voters)
+        (map send-invitation voters)
         (ok "invitation sent successfully")
     )
 )
@@ -147,7 +147,7 @@
 
         (map-set Elections { organization-name: organization-name, election-id: election-id } updated)
 
-        (send-invitation voters)
+        (send-invitation-to-many voters)
     )
 )
 
