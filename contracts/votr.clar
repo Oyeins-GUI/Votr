@@ -124,7 +124,7 @@
         (asserts! (is-eq (map-get? RegisteredOrganizations organization-name) (some tx-sender)) ERR_INVALID_ADDRESS)
 
         (try! (stx-transfer? (var-get vote-posting-price) (unwrap! (map-get? RegisteredOrganizations organization-name) ERR_NOT_REGISTERED) (var-get votr-admin)))
-        (map-set Elections { organization-name: organization-name, election-id: id } { title: title, total-voters: total-voters, expiration: none, invitation-sent: u0,started: false })
+        (map-set Elections { organization-name: organization-name, election-id: id } { title: title, total-voters: total-voters, expiration: none, invitation-sent: u0, started: false })
         (var-set elections-id id)
         (try! (authorize-voters organization-name id contestants))
 
@@ -215,7 +215,9 @@
         ;; #[filter(election-id)]
         (asserts! (or (is-eq tx-sender (var-get votr-admin)) (is-eq tx-sender (unwrap! (map-get? RegisteredOrganizations organization-name) ERR_NOT_REGISTERED))) ERR_UNAUTHORIZED)
         (asserts! (>= block-height (unwrap-panic vote-expiry)) ERR_VOTE_NOT_ENDED)
+
         (map-delete Elections { organization-name: organization-name, election-id: election-id })
+        
         (ok "voting has ended")
     )
 )

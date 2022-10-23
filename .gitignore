@@ -4,6 +4,7 @@
 .requirements/
 history.txt
 *.html
+**/contracts/.html
 *.lcov
 *.css
 *.png
