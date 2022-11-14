@@ -125,7 +125,7 @@
         (asserts! (is-eq (map-get? RegisteredOrganizations organization-name) (some tx-sender)) ERR_INVALID_ADDRESS)
 
         (try! (stx-transfer? (var-get vote-posting-price) (unwrap! (map-get? RegisteredOrganizations organization-name) ERR_NOT_REGISTERED) (var-get votr-admin)))
-        ;; (map-set ElecIdForContestants contestants id)
+        (map init-constestant contestants)
         (map-set Elections { organization-name: organization-name, election-id: id } { 
             title: title, 
             total-voters: total-voters, 
@@ -188,7 +188,7 @@
         (
             (election (unwrap! (map-get? Elections { organization-name: organization-name, election-id: election-id }) ERR_NOT_REGISTERED))
             (vote-expiry (get expiration election))
-            (votes (default-to u0 (map-get? ContestantVotes { address: contestant, election-id: election-id })))
+            (votes (unwrap! (map-get? ContestantVotes { address: contestant, election-id: election-id }) (err u100)))
         )
         ;; #[filter(updated-votes, contestant, election-id)]
         (asserts! (is-eq (get-owner invitation-id) (ok (some tx-sender))) ERR_UNAUTHORIZED_VOTER)
@@ -197,7 +197,7 @@
 
         (unwrap! (burn-invitation invitation-id tx-sender) ERR_UNAUTHORIZED_VOTER)
 
-        ;; (map-set ContestantVotes { address: contestant, election-id: election-id } (+ votes u1))
+        (map-set ContestantVotes { address: contestant, election-id: election-id } (+ votes u1))
         (map-set Voters { address: tx-sender, election-id: election-id } { supporter: contestant })
 
         (ok "your vote has been casted")
@@ -251,5 +251,12 @@
             (votes (unwrap-panic (map-get? ContestantVotes { address: (get address contestant), election-id: u1 } )))
         )
         (merge { address: (get address contestant), name: (get name contestant)} { votes: votes })
+    )
+)
+
+(define-private (init-constestant (constestant { name: (string-ascii 128), address: principal }))
+    (map-set ContestantVotes 
+        { address: (get address constestant), election-id: (+ (var-get elections-id) u1) } 
+        u0
     )
 )
