@@ -158,7 +158,7 @@
             (total-sent (get invitation-sent election))
             (updated-election (merge election { invitation-sent: (+ total-sent (len voters)) }))
         )
-        (asserts! (is-eq (map-get? RegisteredOrganizations organization-name) (some tx-sender)) ERR_INVALID_ADDRESS)
+        (asserts! (is-eq (map-get? RegisteredOrganizations organization-name) (some tx-sender)) ERR_NOT_REGISTERED)
         ;; #[filter(election-id, voters)]
         (try! (can-send-invitation election-id (len voters)))
 
@@ -237,7 +237,7 @@
 )
 
 (define-read-only (get-election-info (election-id uint)) 
-    (ok (unwrap! (map-get? Elections { election-id: election-id }) (err u410)))
+    (ok (unwrap! (map-get? Elections { election-id: election-id }) ERR_NO_CREATED_ELECTION))
 )
 
 (define-private (can-send-invitation (election-id uint) (invitations uint))
