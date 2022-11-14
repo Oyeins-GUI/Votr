@@ -42,10 +42,10 @@
     )
 )
 
-(define-private (send-invitation-to-many (voters (list 128 principal))) 
+(define-private (send-invitation-to-many (voters (list 128 principal)))
     (begin
         (map send-invitation voters)
-        (ok "invitation sent successfully")
+        (ok "sent")
     )
 )
 
@@ -57,7 +57,11 @@
 
 
 ;; VOTR
-;; is a Web 3 voting platform. This platform guarantees transparency and credibility as the voters can monitor the progression of the voting exercise over the Blockchain.
+;; is a Web 3 voting platform. 
+;; This platform guarantees transparency and credibility as the voters can monitor 
+;; the progression of the voting exercise over the Blockchain 
+;; and it also makes use of nfts to make sure only authorize voters
+;; can vote for an election
 
 (define-constant ERR_UNAUTHORIZED (err u200))
 (define-constant ERR_ALREADY_REGISTERED (err u400))
@@ -112,7 +116,12 @@
 
 ;; the create-election function allows only registered organizations to commence voting exercise
 ;; with an nft every verified voter must hold
-(define-public (create-election (organization-name (string-ascii 128)) (title (string-ascii 30)) (total-voters uint) (contestants (list 128 { address: principal, name: (string-ascii 128) }))) 
+(define-public  (create-election 
+                    (organization-name (string-ascii 128)) 
+                    (title (string-ascii 30)) 
+                    (total-voters uint) 
+                    (contestants (list 128 { address: principal, name: (string-ascii 128) }))
+                ) 
     (let 
         (
             (election-id (var-get elections-id))
@@ -156,6 +165,8 @@
         (map-set Elections { election-id: election-id } updated-election)
 
         (send-invitation-to-many voters)
+        ;; (ok (concat "you have authorized" (concat ((int-to-ascii (to-int (get invitation-sent election))) "address")))
+        ;; (ok (stx-account tx-sender))
     )
 )
 
