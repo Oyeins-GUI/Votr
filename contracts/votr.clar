@@ -92,10 +92,6 @@
 (define-map ContestantVotes {address: principal, election-id: uint} uint)
 (define-map Voters {address: principal, election-id: uint} { supporter: principal })
 
-(define-read-only (get-votes (contestant principal) (election-id uint)) 
-    (map-get? ContestantVotes { address: contestant, election-id: election-id })
-)
-
 ;; PUBLIC FUNCTIONS
 
 ;; the register function allows an organization to come into the platform and
