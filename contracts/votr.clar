@@ -89,15 +89,22 @@
         total-voters: uint, 
         expiration: (optional uint), 
         invitation-sent: uint,
-        started: bool,
+        status: (string-ascii 10),
         contestants: (list 128 { address: principal, name: (string-ascii 128) }),
         creator: (string-ascii 128)
     }
 )
-(define-map ContestantVotes { address: principal, election-id: uint } uint)
+(define-map ContestantVotes { address: principal, election-id: uint } { votes: uint, name: (string-ascii 128) })
+(define-map Contestants principal uint)
 (define-map Voters { address: principal, election-id: uint } { supporter: principal })
 
 ;; PUBLIC FUNCTIONS
+(define-read-only (check (election-id uint) (contestant principal)) 
+    (map-get? ContestantVotes { address: contestant, election-id: election-id })
+)
+(define-read-only (check2 (contestant principal)) 
+    (map-get? Contestants contestant)
+)
 
 ;; the register function allows an organization to come into the platform and
 ;; give them the right to commence a voting exercise 
@@ -131,14 +138,15 @@
         ;; #[filter(title, total-voters, contestants)]
         (asserts! (is-eq organization-address tx-sender) ERR_NOT_REGISTERED)
 
-        (var-set elections-id id)
         (map init-constestant contestants)
+        (map set-id contestants)
+        (var-set elections-id id)
         (map-set Elections { election-id: id } { 
             title: title, 
             total-voters: total-voters, 
             expiration: none, 
             invitation-sent: u0,
-            started: false,
+            status: "Inactive",
             contestants: contestants,
             creator: organization-name
         })
@@ -165,8 +173,6 @@
         (map-set Elections { election-id: election-id } updated-election)
 
         (send-invitation-to-many voters)
-        ;; (ok (concat "you have authorized" (concat ((int-to-ascii (to-int (get invitation-sent election))) "address")))
-        ;; (ok (stx-account tx-sender))
     )
 )
 
@@ -178,7 +184,7 @@
             (election (unwrap! (map-get? Elections { election-id: election-id }) ERR_NO_CREATED_ELECTION))
             (total-voters (get total-voters election))
             (total-sent (get invitation-sent election))
-            (updated-election (merge election { started: true, expiration: (some (+ block-height expiration)) }))
+            (updated-election (merge election { status: "Active", expiration: (some (+ block-height expiration)) }))
         )
         ;; #[filter(election-id)]
         (asserts! (> expiration u0) ERR_INVALID_VOTE_EXPIRATION)
@@ -193,18 +199,24 @@
 
 ;; the vote function allows only users with the nft defined above to vote
 ;; for any contestant of their choice
-(define-public (vote (organization-name (string-ascii 128)) (election-id uint) (contestant principal) (invitation-id uint))
+(define-public (vote (election-id uint) (contestant principal) (invitation-id uint))
     (let
         (
             (election (unwrap! (map-get? Elections { election-id: election-id }) ERR_NOT_REGISTERED))
             (vote-expiry (get expiration election))
+            (votes (unwrap! (map-get? ContestantVotes { address: contestant, election-id: election-id }) ERR_NOT_A_CONTESTANT))
         )
         ;; #[filter(updated-votes, contestant, election-id)]
-        (asserts! (is-eq (get-owner invitation-id) (ok (some tx-sender))) ERR_UNAUTHORIZED_VOTER)
         (asserts! (< block-height (unwrap! vote-expiry ERR_VOTE_NOT_STARTED)) ERR_VOTE_ENDED)
+        (asserts! (is-eq (get-owner invitation-id) (ok (some tx-sender))) ERR_UNAUTHORIZED_VOTER)
         (asserts! (is-none (map-get? Voters { address: tx-sender, election-id: election-id })) ERR_VOTED_ALREADY)
+        (asserts! (is-some (index-of (get contestants election) { address: contestant, name: (get name votes)})) ERR_NOT_A_CONTESTANT)
 
         (map-set Voters { address: tx-sender, election-id: election-id } { supporter: contestant })
+        (map-set ContestantVotes 
+            { address: contestant, election-id: election-id } 
+            { votes: (+ (get votes votes) u1), name: (get name votes) }
+        )
 
         (try! (burn-invitation invitation-id tx-sender))
 
@@ -213,7 +225,7 @@
 )
 
 ;; the end-vote function will delete any election that has expired from the map
-(define-public (end-vote (organization-name (string-ascii 128)) (election-id uint)) 
+(define-public (end-election (organization-name (string-ascii 128)) (election-id uint)) 
     (let
         (
             (vote-expiry (unwrap! (get expiration (map-get? Elections { election-id: election-id })) ERR_NO_CREATED_ELECTION))
@@ -262,13 +274,17 @@
         (
             (votes (unwrap-panic (map-get? ContestantVotes { address: (get address contestant), election-id: u1 } )))
         )
-        (merge { address: (get address contestant), name: (get name contestant)} { votes: votes })
+        (merge { address: (get address contestant), name: (get name contestant)} votes)
     )
 )
 
-(define-private (init-constestant (constestant { name: (string-ascii 128), address: principal }))
+(define-private (init-constestant (contestants { name: (string-ascii 128), address: principal }))
     (map-set ContestantVotes 
-        { address: (get address constestant), election-id: (+ (var-get elections-id) u1) } 
-        u0
+        { address: (get-contestant-address contestants), election-id: (+ (var-get elections-id) u1) } 
+        { votes: u0, name: (get name contestants) }
     )
+)
+
+(define-private (set-id (contestants { name: (string-ascii 128), address: principal })) 
+    (map-set Contestants (get-contestant-address contestants) (+ (var-get elections-id) u1))
 )
