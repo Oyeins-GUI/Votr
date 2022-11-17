@@ -99,12 +99,6 @@
 (define-map Voters { address: principal, election-id: uint } { supporter: principal })
 
 ;; PUBLIC FUNCTIONS
-(define-read-only (check (election-id uint) (contestant principal)) 
-    (map-get? ContestantVotes { address: contestant, election-id: election-id })
-)
-(define-read-only (check2 (contestant principal)) 
-    (map-get? Contestants contestant)
-)
 
 ;; the register function allows an organization to come into the platform and
 ;; give them the right to commence a voting exercise 
@@ -272,7 +266,8 @@
 (define-private (get-contestant-votes (contestant { address: principal, name: (string-ascii 128) }))
     (let
         (
-            (votes (unwrap-panic (map-get? ContestantVotes { address: (get address contestant), election-id: u1 } )))
+            (id (unwrap-panic (map-get? Contestants (get address contestant))))
+            (votes (unwrap-panic (map-get? ContestantVotes { address: (get address contestant), election-id: id } )))
         )
         (merge { address: (get address contestant), name: (get name contestant)} votes)
     )
