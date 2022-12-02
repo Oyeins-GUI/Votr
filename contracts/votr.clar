@@ -94,6 +94,7 @@
         creator: (string-ascii 128)
     }
 )
+(define-map endedElections uint (string-ascii 7))
 (define-map ContestantVotes { address: principal, election-id: uint } { votes: uint, name: (string-ascii 128) })
 (define-map Voters { address: principal, election-id: uint } { supporter: principal })
 
@@ -128,7 +129,6 @@
                 ) 
     (begin
         (map init-constestant contestants)
-        ;; (map set-id contestants)
         (let 
             (
                 (election-id (var-get elections-id))
@@ -140,7 +140,6 @@
             ;; #[filter(title, total-voters, contestants)]
             (asserts! (is-eq organization-address tx-sender) ERR_NOT_REGISTERED)
 
-            ;; (var-set elections-id id)
             (map-set Elections { election-id: id } { 
                 title: title, 
                 total-voters: total-voters, 
@@ -153,6 +152,7 @@
             (try! (authorize-voters organization-name id (map get-contestant-address contestants)))
             (try! (stx-transfer? (var-get vote-posting-price) organization-address (var-get votr-admin)))
             (print x)
+
             (ok id)
         )
     )
@@ -236,12 +236,19 @@
         ;; #[filter(election-id)]
         (asserts! (or (is-eq tx-sender (var-get votr-admin)) (is-eq tx-sender (unwrap! (map-get? RegisteredOrganizations organization-name) ERR_NOT_REGISTERED))) ERR_UNAUTHORIZED)
         (asserts! (>= block-height (unwrap! vote-expiry ERR_VOTE_NOT_STARTED)) ERR_VOTE_NOT_ENDED)
+
+        (map-set endedElections election-id "Ended")
         (map-delete Elections { election-id: election-id })
+
         (ok "voting has ended")
     )
 )
 
 (define-read-only (get-election-info (election-id uint)) 
+    ;; (if (is-some (map-get? Elections { election-id: election-id }))
+    ;;      (map-get? Elections { election-id: election-id })
+    ;;      (map-get? endedElections { election-id: election-id })
+    ;; )
     (map-get? Elections { election-id: election-id })
 )
 
