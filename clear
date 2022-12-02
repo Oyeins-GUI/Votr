@@ -1,0 +1,131 @@
+[33mcommit a184e2d12977dca8428b4a37feb0cb8bca8ad1de[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Thu Nov 17 09:59:37 2022 +0000
+
+    get-contestants-votes update
+
+[33mcommit d3836e47fb863585bde903dd59b2d7c8e9a5450f[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Wed Nov 16 21:46:05 2022 +0000
+
+    added a function
+
+[33mcommit 4ebc87ca2bf5229f565e66729b5677366b9a3490[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Mon Nov 14 16:23:11 2022 +0000
+
+    update the create-election function
+
+[33mcommit 03cddca02fe4b3d00a443f57080354ff52711749[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Mon Nov 14 16:07:51 2022 +0000
+
+    update the create-election function
+
+[33mcommit 66a2f7f8b5906bc8ae93aa0414e92fb5d9729c19[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Mon Nov 14 12:08:19 2022 +0000
+
+    updated the create-election function
+
+[33mcommit 7ee3fa23d6e9a23385d88e550ca2afb23a9e9f3f[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Mon Nov 14 07:14:13 2022 +0000
+
+    updated
+
+[33mcommit 2dc91b745f2a85512ae0b18ff825c6bf5de69922[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Mon Nov 14 07:13:27 2022 +0000
+
+    updated
+
+[33mcommit c1a0628a2037a3e30b24995aa3a693c5950682b2[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Tue Nov 8 23:19:32 2022 +0000
+
+    updated
+
+[33mcommit 4fd79932b25bb1edc3cad8e5d09cb6663644d9a5[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Sun Oct 23 21:36:07 2022 +0000
+
+    updated
+
+[33mcommit 78e931fa12a09cfb40c34669836ba0228062f60c[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Sun Oct 23 19:34:44 2022 +0000
+
+    updated
+
+[33mcommit 841d65aa7f2c0a0e933797c62508f7f84816e8c1[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Sat Oct 22 16:35:38 2022 +0000
+
+    updated
+
+[33mcommit ff6205669a3caeafce9fa1904195d3691d72c286[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Sat Oct 22 16:34:17 2022 +0000
+
+    updated
+
+[33mcommit 608a285b8917c44d504fcf775a6b8767d94328c0[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Sat Oct 22 07:13:27 2022 +0000
+
+    updated
+
+[33mcommit fcfa75289075783e77fb970d124e137c0c8f6657[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Sat Oct 22 07:12:01 2022 +0000
+
+    updated
+
+[33mcommit eb48cd4927944fc372662865bc6ac27163637023[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Mon Oct 17 23:43:20 2022 +0000
+
+    updated
+
+[33mcommit 8bc055949b1d0c4a06351668bf8288a29ea767f1[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Mon Oct 17 23:18:21 2022 +0000
+
+    updated
+
+[33mcommit bba443817ee1f660db17a6ded7b3520dc8bb51cb[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Mon Oct 17 23:12:14 2022 +0000
+
+    updated
+
+[33mcommit ae53cf995fff67da72ac91560f697c230dc8e6d9[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Mon Oct 17 00:43:36 2022 +0000
+
+    done
+
+[33mcommit 76372115ab37e5210bd34b0990d6050137647598[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Mon Oct 17 00:32:09 2022 +0000
+
+    done
+
+[33mcommit 5c9a4e90a50ca13c0078220405b464aae91b909f[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Fri Oct 14 15:09:18 2022 +0000
+
+    third commit
+
+[33mcommit 5f0b205fd2094bb51830509775dfa51473d34a31[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Thu Oct 13 23:19:47 2022 +0000
+
+    second commit
+
+[33mcommit a32c3905e84663dfc13436e0560e19930320dc02[m
+Author: Oyeins-GUI <oyeinx7@gmail.com>
+Date:   Thu Oct 13 15:36:32 2022 +0000
+
+    first commit
