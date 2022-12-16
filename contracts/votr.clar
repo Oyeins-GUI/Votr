@@ -1,4 +1,7 @@
-;; this nft contract will be used by registered organizations to authorize users who can vote for an election they created
+
+;; this nft contract will be used by registered organizations
+;; to authorize users who can vote for an election created
+;; by registered organizations
 (impl-trait 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.nft-trait)
 
 (define-constant contract-owner tx-sender)
@@ -63,6 +66,7 @@
 ;; and it also makes use of nfts to make sure only authorize voters
 ;; can vote for an election
 
+(define-constant CONTRACT_OWNER tx-sender)
 (define-constant ERR_UNAUTHORIZED (err u200))
 (define-constant ERR_ALREADY_REGISTERED (err u400))
 (define-constant ERR_NOT_REGISTERED (err u401))
@@ -71,17 +75,17 @@
 (define-constant ERR_NOT_A_CONTESTANT (err u404))
 (define-constant ERR_VOTED_ALREADY (err u406))
 (define-constant ERR_VOTE_ENDED (err u407))
-(define-constant ERR_VOTE_NOT_STARTED (err u408))
+(define-constant ERR_VOTE_NOT_STARTED (err u418))
 (define-constant ERR_VOTE_NOT_ENDED (err u408))
 (define-constant ERR_UNAUTHORIZED_VOTER (err u409))
 (define-constant ERR_NO_CREATED_ELECTION (err u410))
-(define-constant ERR_EXCEEDED_INVITE_LIMIT (err u411))
+(define-constant ERR_EXCEEDING_INVITE_LIMIT (err u411))
 (define-constant ERR_SOME_INVITATIONS_NOT_SENT (err u412))
 
 (define-data-var votr-admin principal tx-sender)
 (define-data-var elections-id uint u0)
 (define-data-var total-registered-organizations uint u0)
-(define-data-var vote-posting-price uint u50000000)
+(define-data-var registration-fee uint u100000000)
 
 (define-map RegisteredOrganizations (string-ascii 128) principal)
 (define-map Elections { election-id: uint } { 
@@ -90,11 +94,10 @@
         expiration: (optional uint), 
         invitation-sent: uint,
         status: (string-ascii 10),
-        contestants: (list 128 { address: principal, name: (string-ascii 128), electionId: uint }),
+        contestants: (list 128 { address: principal, name: (string-ascii 128), election-id: uint }),
         creator: (string-ascii 128)
     }
 )
-(define-map endedElections uint (string-ascii 7))
 (define-map ContestantVotes { address: principal, election-id: uint } { votes: uint, name: (string-ascii 128) })
 (define-map Voters { address: principal, election-id: uint } { supporter: principal })
 
@@ -110,13 +113,10 @@
 
         (map-set RegisteredOrganizations organization-name address)
         (var-set total-registered-organizations (+ (var-get total-registered-organizations) u1))
+        (try! (stx-transfer? (var-get registration-fee) address (as-contract CONTRACT_OWNER)))
 
-        (ok "registration successful")    
+        (ok "registration successful")  
     )
-)
-
-(define-private (election-to-user (contestant { address: principal, name: (string-ascii 128) }))
-    (merge { electionId: (var-get elections-id) } contestant)
 )
 
 ;; the create-election function allows only registered organizations to commence voting exercise
@@ -134,11 +134,11 @@
                 (election-id (var-get elections-id))
                 (id (+ u1 election-id))
                 (x (var-set elections-id id))
-                (organization-address (unwrap! (map-get? RegisteredOrganizations organization-name) ERR_NOT_REGISTERED))
+                (organization-address (unwrap! (map-get? RegisteredOrganizations organization-name) ERR_NOT_REGISTERED ))
                 (newListOfContestants (map election-to-user contestants))
             )
             ;; #[filter(title, total-voters, contestants)]
-            (asserts! (is-eq organization-address tx-sender) ERR_NOT_REGISTERED)
+            (asserts! (is-eq organization-address tx-sender) ERR_UNAUTHORIZED)
 
             (map-set Elections { election-id: id } { 
                 title: title, 
@@ -150,8 +150,6 @@
                 creator: organization-name
             })
             (try! (authorize-voters organization-name id (map get-contestant-address contestants)))
-            (try! (stx-transfer? (var-get vote-posting-price) organization-address (var-get votr-admin)))
-            (print x)
 
             (ok id)
         )
@@ -163,6 +161,7 @@
 (define-public (authorize-voters (organization-name (string-ascii 128)) (election-id uint) (voters (list 128 principal))) 
     (begin 
         (asserts! (is-eq (map-get? RegisteredOrganizations organization-name) (some tx-sender)) ERR_NOT_REGISTERED)
+        (asserts! (is-some (map-get? Elections { election-id: election-id })) ERR_NO_CREATED_ELECTION)
         (let
             (
                 (election (unwrap! (map-get? Elections { election-id: election-id }) ERR_NO_CREATED_ELECTION))
@@ -213,7 +212,7 @@
         (asserts! (< block-height (unwrap! vote-expiry ERR_VOTE_NOT_STARTED)) ERR_VOTE_ENDED)
         (asserts! (is-eq (get-owner invitation-id) (ok (some tx-sender))) ERR_UNAUTHORIZED_VOTER)
         (asserts! (is-none (map-get? Voters { address: tx-sender, election-id: election-id })) ERR_VOTED_ALREADY)
-        (asserts! (is-some (index-of (get contestants election) { address: contestant, name: (get name votes), electionId: election-id })) ERR_NOT_A_CONTESTANT)
+        (asserts! (is-some (index-of (get contestants election) { address: contestant, name: (get name votes), election-id: election-id })) ERR_NOT_A_CONTESTANT)
 
         (map-set Voters { address: tx-sender, election-id: election-id } { supporter: contestant })
         (map-set ContestantVotes 
@@ -237,40 +236,32 @@
         (asserts! (or (is-eq tx-sender (var-get votr-admin)) (is-eq tx-sender (unwrap! (map-get? RegisteredOrganizations organization-name) ERR_NOT_REGISTERED))) ERR_UNAUTHORIZED)
         (asserts! (>= block-height (unwrap! vote-expiry ERR_VOTE_NOT_STARTED)) ERR_VOTE_NOT_ENDED)
 
-        (map-set endedElections election-id "Ended")
         (map-delete Elections { election-id: election-id })
 
         (ok "voting has ended")
     )
 )
 
+;; gets the information of the entire election
 (define-read-only (get-election-info (election-id uint)) 
-    ;; (if (is-some (map-get? Elections { election-id: election-id }))
-    ;;      (map-get? Elections { election-id: election-id })
-    ;;      (map-get? endedElections { election-id: election-id })
-    ;; )
     (map-get? Elections { election-id: election-id })
 )
 
-(define-read-only (get-contestants-info (electionId uint))
+;; gets the information for every contestant in a
+;; particular election
+(define-read-only (get-contestants-info (election-id uint))
     (let
         (
-            (election (unwrap-panic (map-get? Elections { election-id: electionId })))
+            (election (unwrap-panic (map-get? Elections { election-id: election-id })))
             (allContestants (get contestants election))
         )
         (map fetch-contestant-votes allContestants)
     )
 )
 
-(define-private (fetch-contestant-votes (contestant {address: principal, name: (string-ascii 128), electionId: uint})) 
-    (let 
-        (
-            (votes (unwrap-panic (map-get? ContestantVotes { address: (get address contestant), election-id: (get electionId contestant) } )))
-        ) 
-        (merge { address: (get address contestant) } votes)
-    )
-)
+;; PRIVATE FUNCTIONS
 
+;; sets all contestants of an election to the ContestantsVotes map
 (define-private (init-constestant (contestants { name: (string-ascii 128), address: principal }))
     (map-set ContestantVotes 
         { address: (get address contestants), election-id: (+ (var-get elections-id) u1) } 
@@ -278,6 +269,23 @@
     )
 )
 
+;; merge the election-id to contestants tuple in the Elections map
+;; to differentiate contestants for one election from the others
+(define-private (election-to-user (contestant { address: principal, name: (string-ascii 128) }))
+    (merge { election-id: (var-get elections-id) } contestant)
+)
+
+;; merge the address of contestants to the value of the ContestantVotes map 
+(define-private (fetch-contestant-votes (contestant {address: principal, name: (string-ascii 128), election-id: uint})) 
+    (let 
+        (
+            (votes (unwrap-panic (map-get? ContestantVotes { address: (get address contestant), election-id: (get election-id contestant) } )))
+        ) 
+        (merge { address: (get address contestant) } votes)
+    )
+)
+
+;; check if the number of nft given out is equal to the total-voters for an election
 (define-private (can-send-invitation (election-id uint) (invitations uint))
     (let 
         (
@@ -286,11 +294,12 @@
             (total-sent (get invitation-sent election))
             (remaining-invites (- total-voters total-sent))
         )
-        (asserts! (>= remaining-invites invitations) ERR_EXCEEDED_INVITE_LIMIT)
+        (asserts! (>= remaining-invites invitations) ERR_EXCEEDING_INVITE_LIMIT)
         (ok true)
     )
 )
 
+;; gets the address from the tuple
 (define-private (get-contestant-address (contestant { address: principal, name: (string-ascii 128) }))
     (get address contestant)
 )
