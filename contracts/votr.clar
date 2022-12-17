@@ -98,6 +98,7 @@
         creator: (string-ascii 128)
     }
 )
+(define-map endedElections uint (string-ascii 7))
 (define-map ContestantVotes { address: principal, election-id: uint } { votes: uint, name: (string-ascii 128) })
 (define-map Voters { address: principal, election-id: uint } { supporter: principal })
 
@@ -138,7 +139,11 @@
                 (newListOfContestants (map election-to-user contestants))
             )
             ;; #[filter(title, total-voters, contestants)]
+<<<<<<< HEAD
             (asserts! (is-eq organization-address tx-sender) ERR_UNAUTHORIZED)
+=======
+            (asserts! (is-eq organization-address tx-sender) ERR_NOT_REGISTERED)
+>>>>>>> 1072a9149cc7bbe74d02d17fe21e6a59d12ea9de
 
             (map-set Elections { election-id: id } { 
                 title: title, 
@@ -150,6 +155,11 @@
                 creator: organization-name
             })
             (try! (authorize-voters organization-name id (map get-contestant-address contestants)))
+<<<<<<< HEAD
+=======
+            (try! (stx-transfer? (var-get vote-posting-price) organization-address (var-get votr-admin)))
+            (print x)
+>>>>>>> 1072a9149cc7bbe74d02d17fe21e6a59d12ea9de
 
             (ok id)
         )
@@ -161,7 +171,10 @@
 (define-public (authorize-voters (organization-name (string-ascii 128)) (election-id uint) (voters (list 128 principal))) 
     (begin 
         (asserts! (is-eq (map-get? RegisteredOrganizations organization-name) (some tx-sender)) ERR_NOT_REGISTERED)
+<<<<<<< HEAD
         (asserts! (is-some (map-get? Elections { election-id: election-id })) ERR_NO_CREATED_ELECTION)
+=======
+>>>>>>> 1072a9149cc7bbe74d02d17fe21e6a59d12ea9de
         (let
             (
                 (election (unwrap! (map-get? Elections { election-id: election-id }) ERR_NO_CREATED_ELECTION))
@@ -212,7 +225,11 @@
         (asserts! (< block-height (unwrap! vote-expiry ERR_VOTE_NOT_STARTED)) ERR_VOTE_ENDED)
         (asserts! (is-eq (get-owner invitation-id) (ok (some tx-sender))) ERR_UNAUTHORIZED_VOTER)
         (asserts! (is-none (map-get? Voters { address: tx-sender, election-id: election-id })) ERR_VOTED_ALREADY)
+<<<<<<< HEAD
         (asserts! (is-some (index-of (get contestants election) { address: contestant, name: (get name votes), election-id: election-id })) ERR_NOT_A_CONTESTANT)
+=======
+        (asserts! (is-some (index-of (get contestants election) { address: contestant, name: (get name votes), electionId: election-id })) ERR_NOT_A_CONTESTANT)
+>>>>>>> 1072a9149cc7bbe74d02d17fe21e6a59d12ea9de
 
         (map-set Voters { address: tx-sender, election-id: election-id } { supporter: contestant })
         (map-set ContestantVotes 
@@ -236,12 +253,17 @@
         (asserts! (or (is-eq tx-sender (var-get votr-admin)) (is-eq tx-sender (unwrap! (map-get? RegisteredOrganizations organization-name) ERR_NOT_REGISTERED))) ERR_UNAUTHORIZED)
         (asserts! (>= block-height (unwrap! vote-expiry ERR_VOTE_NOT_STARTED)) ERR_VOTE_NOT_ENDED)
 
+<<<<<<< HEAD
+=======
+        (map-set endedElections election-id "Ended")
+>>>>>>> 1072a9149cc7bbe74d02d17fe21e6a59d12ea9de
         (map-delete Elections { election-id: election-id })
 
         (ok "voting has ended")
     )
 )
 
+<<<<<<< HEAD
 ;; gets the information of the entire election
 (define-read-only (get-election-info (election-id uint)) 
     (map-get? Elections { election-id: election-id })
@@ -253,12 +275,27 @@
     (let
         (
             (election (unwrap-panic (map-get? Elections { election-id: election-id })))
+=======
+(define-read-only (get-election-info (election-id uint)) 
+    ;; (if (is-some (map-get? Elections { election-id: election-id }))
+    ;;      (map-get? Elections { election-id: election-id })
+    ;;      (map-get? endedElections { election-id: election-id })
+    ;; )
+    (map-get? Elections { election-id: election-id })
+)
+
+(define-read-only (get-contestants-info (electionId uint))
+    (let
+        (
+            (election (unwrap-panic (map-get? Elections { election-id: electionId })))
+>>>>>>> 1072a9149cc7bbe74d02d17fe21e6a59d12ea9de
             (allContestants (get contestants election))
         )
         (map fetch-contestant-votes allContestants)
     )
 )
 
+<<<<<<< HEAD
 ;; PRIVATE FUNCTIONS
 
 ;; sets all contestants of an election to the ContestantsVotes map
@@ -277,6 +314,9 @@
 
 ;; merge the address of contestants to the value of the ContestantVotes map 
 (define-private (fetch-contestant-votes (contestant {address: principal, name: (string-ascii 128), election-id: uint})) 
+=======
+(define-private (fetch-contestant-votes (contestant {address: principal, name: (string-ascii 128), electionId: uint})) 
+>>>>>>> 1072a9149cc7bbe74d02d17fe21e6a59d12ea9de
     (let 
         (
             (votes (unwrap-panic (map-get? ContestantVotes { address: (get address contestant), election-id: (get election-id contestant) } )))
@@ -285,6 +325,7 @@
     )
 )
 
+<<<<<<< HEAD
 ;; check if the number of nft given out is equal to the total-voters for an election
 (define-private (can-send-invitation (election-id uint) (invitations uint))
     (let 
@@ -300,6 +341,28 @@
 )
 
 ;; gets the address from the tuple
+=======
+(define-private (init-constestant (contestants { name: (string-ascii 128), address: principal }))
+    (map-set ContestantVotes 
+        { address: (get address contestants), election-id: (+ (var-get elections-id) u1) } 
+        { votes: u0, name: (get name contestants) }
+    )
+)
+
+(define-private (can-send-invitation (election-id uint) (invitations uint))
+    (let 
+        (
+            (election (unwrap! (map-get? Elections { election-id: election-id }) ERR_NO_CREATED_ELECTION))
+            (total-voters (get total-voters election))
+            (total-sent (get invitation-sent election))
+            (remaining-invites (- total-voters total-sent))
+        )
+        (asserts! (>= remaining-invites invitations) ERR_EXCEEDED_INVITE_LIMIT)
+        (ok true)
+    )
+)
+
+>>>>>>> 1072a9149cc7bbe74d02d17fe21e6a59d12ea9de
 (define-private (get-contestant-address (contestant { address: principal, name: (string-ascii 128) }))
     (get address contestant)
 )
