@@ -1,14 +1,14 @@
-# **Votr**
-### Votr is a voting DApp on the Stacks blockchain that allows companies to create elections and carry out voting exercises. 
+# **Votr.io**
+### Votr.io is a voting DApp on the Stacks blockchain that allows companies to create elections and carry out voting exercises. 
 
 ## **DESCRIPTION**
-Most times when elections are carried out, the voters are left in the dark concerning the progression of the exercise, and can only see the results when they are presented by the administrators of the exercise. Hence, credibility and transparency are not guaranteed, as the administrators can alter the results at any time without the knowledge of the voters. Votr is a Web3 voting platform that is designed with the aim allowing companies and other organizations like Co-operative societies to conduct internal election exercises smoothly over the stacks Blockchain. This platform guarantees transparency and credibility as the voters can monitor the progression of the voting exercise over the Blockchain. Furthermore, it is offering a cost effective and reliable means for organizations seeking to conduct election exercises.
-![votr-overview](./assets/votr-overview.jpg)
+Most times when elections are carried out, the voters are left in the dark concerning the progression of the exercise, and can only see the results when they are presented by the administrators of the exercise. Hence, credibility and transparency are not guaranteed, as the administrators can alter the results at any time without the knowledge of the voters. Votr.io is a Web3 voting platform that is designed with the aim allowing companies and other organizations like Co-operative societies to conduct internal election exercises smoothly over the stacks Blockchain. This platform guarantees transparency and credibility as the voters can monitor the progression of the voting exercise over the Blockchain. Furthermore, it is offering a cost effective and reliable means for organizations seeking to conduct election exercises.
 
 ## **TABLE OF CONTENT**
-1. [Title](#votr)
+1. [Title](#Votr.io)
 2. [Description](#description)
-3. [Why **Votr**](#why-votr)
+3. [Why **Votr.io**](#why-Votr.io)
+4. [Features of Votr.io](#Features)
 4. [Getting Started](#getting-started)
     - [Company Usage](#company-usage)
     - [Voters Usage](#voter-usage)
@@ -18,16 +18,39 @@ Most times when elections are carried out, the voters are left in the dark conce
 6. [Testing](#testing)
 7. [Special Thanks](#special-thanks)
 
-## Why _**Votr**_ 
-The design of votr.io is tailored towards fixing the long-standing issue of transparency and credibility of elections. With this DApp, election administrators would not have to answer the question of fairness and the validity of votes cast. Over the years, voting exercise carried out on TV shows like Big Brother Nija and even the Balon D’or player of the year award where a particular contestant is expected to win the competition or award due to their performance and the large fan support they have, but ends up not wining when the final results are released. This causes a lot of controversy and makes the voters and entire fan base question the integrity of the results. However, with Votr.io this problem is solved as the entire exercise is open and can be monitored by the voters and any person that would be interested in the progression of the exercise but yet cannot be altered not even by the administrators of the exercise.  
+## Why _**Votr.io**_ 
+The design of Votr.io.io is tailored towards fixing the long-standing issue of transparency and credibility of elections. With this DApp, election administrators would not have to answer the question of fairness and the validity of votes cast. Over the years, voting exercise carried out on TV shows like Big Brother Nija and even the Balon D’or player of the year award where a particular contestant is expected to win the competition or award due to their performance and the large fan support they have, but ends up not wining when the final results are released. This causes a lot of controversy and makes the voters and entire fan base question the integrity of the results. However, with Votr.io.io this problem is solved as the entire exercise is open and can be monitored by the voters and any person that would be interested in the progression of the exercise but yet cannot be altered not even by the administrators of the exercise.  
 In the continent of Africa where the conventional means of election is used, a considerable number of votes are always rejected as invalid, due to errors from voters. However, with this method which is a blend of internet voting and the block chain technology, there is no room for voting error from voters, as it is done digitally (on the stacks block chain).
-Furthermore, it is very expensive to organize conventional elections, especially elections for political positons. This is very much evident in our home country Nigeria where the previous National election cost over NGN242biliion which is about $543million to organize and conduct. This is very expensive considering the fact that Nigeria is still a developing country. However, Votr.io presents a cheaper and effective means for countries to conduct elections.
-Moreover, in the African continent, when elections are being conducted economic activities are halted all through the day of the election due to security reasons; this ultimately cost the country a lot even more than the actual cost of conducting the elections. Votr.io is a lasting solution to this problem as people can vote using their smartphones or computers from the comfort of their homes, offices, and business locations.
+Furthermore, it is very expensive to organize conventional elections, especially elections for political positons. This is very much evident in our home country Nigeria where the previous National election cost over NGN242biliion which is about $543million to organize and conduct. This is very expensive considering the fact that Nigeria is still a developing country. However, Votr.io.io presents a cheaper and effective means for countries to conduct elections.
+Moreover, in the African continent, when elections are being conducted economic activities are halted all through the day of the election due to security reasons; this ultimately cost the country a lot even more than the actual cost of conducting the elections. Votr.io.io is a lasting solution to this problem as people can vote using their smartphones or computers from the comfort of their homes, offices, and business locations.
+
+## **Features**
+![Votr.io-overview](./assets/votr-overview.jpg)
+
+Equipped with the following features, Votr.io.io effectively dispenses its function to our users;
+###**Register**
+The register feature allows organizations signup with the platform using their stacks wallet address. Thus, giving the permission to create their company profile and election exercises.
+
+### **Create Election**
+This feature allows all registered organizations to create an election exercise tailored to their specific need. They are able to input the title of the election, the details of the contestants, the number of expected voters and finally post the election for credible voters to cast their votes.
+### **View Elections**
+The view election feature enables registered organizations and voters to view the number of current elections that are posted by an organization. This returns the election titles, time of creation, and the time left before expiration of each of the 
+posted elections.
+### **Authorize Voters**
+This feature requires the hosting organization to send NFTs to the intended voters. The election will start only when the organization sends out the authorization NFTs to the voters.
+### **Start**
+The start feature allows organizations to kick start the posted election exercise.
+### **Vote**
+Users who have been registered to the platform are permitted to take part in any election of their choice so long as they are eligible for the particular election of their interest, and with the availability of the cast vote function, they can successfully vote for their preferred contestant. 
+### **Check Election**
+With this feature, voters and organizations alike are given the privilege to follow and monitor any election exercise of their choice. Which gives room for credibility, transparency, and accountability of the exercise; as voters are no longer kept in the dark regarding the events of the election exercise. 
+### **End Election**
+The end election feature gives the organization the privilege to end an election after they are certain the exercise is completed. However, the organization cannot end the election until the stipulated time of the election expires; this restricts the organization from tampering with the exercise and ultimately increases the credibility of the exercise. On expiration of the stipulated time, the organization is required to end the election by clicking the “end election” button but if they are unable to do so, an admin of the platform can do it for the in order to save up space on the block chain. Although admins of the platform can step in to end elections when the time of the exercise is elapsed, they can only do so when and only when the time elapses, and cannot do so at any random time just like the host organization.
 
 ## **Getting Started** 
-In order to access the platform, voters and companies alike need to log on to votr.io and sign up using their stacks wallet address. From there on, the usage of the platform for companies differs from that of voters.
+In order to access the platform, voters and companies alike need to log on to Votr.io.io and sign up using their stacks wallet address. From there on, the usage of the platform for companies differs from that of voters.
 ### **Company Usage** 
-Companies are the election creators and as a result when they get registered, they receive a dashboard through which they can create election exercises using the Create Election button. When creating and election, they will be asked to provide the following data; election title, contestant details, election duration, number of accredited voters. The field for number of accredited voters is essential as the votr.io platform will generate NFTs that would give voters access to cast votes in that election. Thus, holders of the election specific NFT are the only credible participants in the exercise.  After these fields are successfully inputted, the organization can then post the election, signaling the commencement of the exercise.
+Companies are the election creators and as a result when they get registered, they receive a dashboard through which they can create election exercises using the Create Election button. When creating and election, they will be asked to provide the following data; election title, contestant details, election duration, number of accredited voters. The field for number of accredited voters is essential as the Votr.io.io platform will generate NFTs that would give voters access to cast votes in that election. Thus, holders of the election specific NFT are the only credible participants in the exercise.  After these fields are successfully inputted, the organization can then post the election, signaling the commencement of the exercise.
 card_file_box options-ledger-list
 ### **Voter Usage** 
 After successfully signing up with the platform, voters can use the search bar to find organizations on the platform and see the elections they have posted. Afterwards, they can select any election they have access to and vote their desired contestant.
@@ -55,9 +78,9 @@ This DApp is comprised of only one smart contract. The Vot` contract which conta
     •   The elections-id variable represents the unique id for every election created by incrementing whenever an election is 
         created
     •   The registration-fee variable holds how many STX an organization will pay for registration. It's a variable because the   
-        votr-admin only will have the right to change it
+        Votr.io-admin only will have the right to change it
     •   The total-registered-organizations variable keeps a count for the number of registered organizations
-    •   The votr-admin variable is a wallet address that has the permission to register an organization, end an election, change 
+    •   The Votr.io-admin variable is a wallet address that has the permission to register an organization, end an election, change 
         the registration fee and also set a new admin.
 ### **Functions** 
     • get-last-token-id
@@ -85,8 +108,8 @@ This DApp is comprised of only one smart contract. The Vot` contract which conta
     • get-contestants-info
  		 This function returns information for every contestant present in an election
 ### **Testing** 
-![votr-test](./assets/votr-test.jpg)
-The repo contains a comprehensive testing suite for votr contract. As the above coverage report shows, we have tests for 100% of the functions in our contracts as well as 100%+ of lines of code.
+![Votr.io-test](./assets/Votr.io-test.jpg)
+The repo contains a comprehensive testing suite for Votr.io contract. As the above coverage report shows, we have tests for 100% of the functions in our contracts as well as 100%+ of lines of code.
 
 Any suggestions and ideas on how we can improve the testing suite are highly encouraged. As a next step we intend to have the contracts audited.
 
