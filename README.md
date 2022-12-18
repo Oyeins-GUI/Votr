@@ -26,10 +26,10 @@ Moreover, in the African continent, when elections are being conducted economic 
 
 ## **Getting Started**
 In order to access the platform, voters and companies alike need to log on to votr.io and sign up using their stacks wallet address. From there on, the usage of the platform for companies differs from that of voters.
-### **COMPANY USAGE**
+### **Company Usage**
 Companies are the election creators and as a result when they get registered, they receive a dashboard through which they can create election exercises using the Create Election button. When creating and election, they will be asked to provide the following data; election title, contestant details, election duration, number of accredited voters. The field for number of accredited voters is essential as the votr.io platform will generate NFTs that would give voters access to cast votes in that election. Thus, holders of the election specific NFT are the only credible participants in the exercise.  After these fields are successfully inputted, the organization can then post the election, signaling the commencement of the exercise.
 card_file_box options-ledger-list
-### **VOTERS USAGE**
+### **Voter Usage**
 After successfully signing up with the platform, voters can use the search bar to find organizations on the platform and see the elections they have posted. Afterwards, they can select any election they have access to and vote their desired contestant.
 
 ## **Smart Contract Design**
