@@ -8,7 +8,7 @@ Most times when elections are carried out, the voters are left in the dark conce
 ## **TABLE OF CONTENT**
 1. [Title](#votr)
 2. [Description](#description)
-3. [Why _**Votr**_](#why-votr)
+3. [Why **Votr**](#why-votr)
 4. [Getting Started](#getting-started)
     - [Company Usage](#company-usage)
     - [Voters Usage](#voter-usage)
