@@ -108,7 +108,7 @@ This DApp is comprised of only one smart contract. The Vot` contract which conta
     • get-contestants-info
  		 This function returns information for every contestant present in an election
 ### **Testing** 
-![Votr.io-test](./assets/Votr.io-test.jpg)
+![Votr.io-test](./assets/votr-test.jpg)
 The repo contains a comprehensive testing suite for Votr.io contract. As the above coverage report shows, we have tests for 100% of the functions in our contracts as well as 100%+ of lines of code.
 
 Any suggestions and ideas on how we can improve the testing suite are highly encouraged. As a next step we intend to have the contracts audited.
