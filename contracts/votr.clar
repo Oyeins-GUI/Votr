@@ -135,7 +135,7 @@
                 (id (+ u1 election-id))
                 (x (var-set elections-id id))
                 (organization-address (unwrap! (map-get? RegisteredOrganizations organization-name) ERR_NOT_REGISTERED ))
-                (newListOfContestants (map election-to-user contestants))
+                (newListOfContestants (map contestant-to-election contestants))
             )
             ;; #[filter(title, total-voters, contestants)]
             (asserts! (is-eq organization-address tx-sender) ERR_UNAUTHORIZED)
@@ -271,7 +271,7 @@
 
 ;; merge the election-id to contestants tuple in the Elections map
 ;; to differentiate contestants for one election from the others
-(define-private (election-to-user (contestant { address: principal, name: (string-ascii 128) }))
+(define-private (contestant-to-election (contestant { address: principal, name: (string-ascii 128) }))
     (merge { election-id: (var-get elections-id) } contestant)
 )
 
