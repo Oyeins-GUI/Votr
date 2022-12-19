@@ -10,7 +10,7 @@ Most times when elections are carried out, the voters are left in the dark conce
 3. [Why **Votr.io**](#why-Votr.io)
 4. [Features of Votr.io](#Features)
     - [Register](#register)
-    - [Create Election](#check-election)
+    - [Create Election](#create-election)
     - [View Elections](#view-elections)
     - [Authorize Voters](#authorize-voters)
     - [Start](#start)
