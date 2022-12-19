@@ -28,7 +28,7 @@ Moreover, in the African continent, when elections are being conducted economic 
 ![Votr.io-overview](./assets/votr-overview.jpg)
 
 Equipped with the following features, Votr.io.io effectively dispenses its function to our users;
-###**Register**
+### **Register**
 The register feature allows organizations signup with the platform using their stacks wallet address. Thus, giving the permission to create their company profile and election exercises.
 
 ### **Create Election**
@@ -107,7 +107,26 @@ This DApp is comprised of only one smart contract. The Vot` contract which conta
   		This is a read-only function that returns the details of an election. It takes in the election-id as an argument.
     • get-contestants-info
  		 This function returns information for every contestant present in an election
-### **Testing** 
+### **Helper Functions**
+    • send-invitation
+        This is a private function that does the minting of the nft that will be used for the authorization of voters.
+    • send-invitation-to-many
+        This function makes use of the send-invitation function. It runs the send-invitation function for all the principals in the list passed in as arguments.
+    • burn-invitation
+        This takes care of burning nfts of voters after their votes have been casted.
+    The three functions above are private functions, because, we only want organizations/companies to call them indirectly.
+    
+    • init-contestant
+        This function sets all the contestants of an election to the ContestantVotes map
+    • contestant-to-election
+        This function merges the election-id of contestant to the tuple value in the ContestantVotes map. This is used to differentiate contestant in their various elections.
+    • fetch-contestant-votes
+        This function get the value of the ContestantVotes map. It is private function because it will be used in another function to get the value of the ContestantVotes map for all contestants.
+    • can-send-invitation
+        This function does a check. It checks if all the voters of an election have been sent their nfts that authorizes them to vote.
+    • get-address
+        This function gets the address from a tuple that will be passed in as an argument to any function. It gets the address from the tuple.
+## **Testing** 
 ![Votr.io-test](./assets/votr-test.jpg)
 The repo contains a comprehensive testing suite for Votr.io contract. As the above coverage report shows, we have tests for 100% of the functions in our contracts as well as 100%+ of lines of code.
 
