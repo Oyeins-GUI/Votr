@@ -154,3 +154,5 @@ $ open index.html
 We would like to thank the Incrypro Encrypted clan for their immense support and advice, and also for encouraging and leading us to explore web3 and Blockchain development.
 We would also like to thank Mr. Angaye Seimokumo our programming instructor for also inspiring and pushing us to explore our skills in developing problem solving ideas.
 Finally, we are appreciating the organizers of Clarity Camp and the administrators of the clarity holiday hackathon for giving us the opportunity to test our abilities and showcase our skills in developing on the web3 space using clarity.
+
+[GPL](LICENSE)
